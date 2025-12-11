@@ -8,6 +8,7 @@ from flask_cors import CORS
 from flasgger import Swagger, swag_from
 from datetime import datetime
 import uuid
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -982,4 +983,7 @@ def root():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Only enable debug mode if explicitly set in environment variable
+    # Never use debug=True in production as it exposes the debugger
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)

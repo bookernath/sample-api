@@ -71,6 +71,15 @@ python app.py
 
 The API will be available at: `http://localhost:5000`
 
+### Development Mode
+
+For development with debug mode enabled (provides detailed error messages and auto-reload):
+```bash
+FLASK_DEBUG=True python app.py
+```
+
+**Warning:** Never use debug mode in production as it exposes the interactive debugger which can be a security risk.
+
 ## API Documentation
 
 Once the server is running, access the interactive Swagger UI documentation at:
