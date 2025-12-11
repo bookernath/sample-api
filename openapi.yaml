@@ -1,0 +1,544 @@
+openapi: 3.0.0
+info:
+  title: BookStore API
+  description: A sample REST API demonstrating typical REST principles with books and authors
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@bookstore.example
+
+servers:
+  - url: http://localhost:5000/api/v1
+    description: Local development server
+  - url: https://api.bookstore.example/api/v1
+    description: Production server
+
+tags:
+  - name: health
+    description: Health check operations
+  - name: books
+    description: Operations related to books
+  - name: authors
+    description: Operations related to authors
+
+paths:
+  /health:
+    get:
+      tags:
+        - health
+      summary: Health Check
+      description: Returns the health status of the API
+      operationId: healthCheck
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2024-01-01T00:00:00Z"
+
+  /books:
+    get:
+      tags:
+        - books
+      summary: Get all books
+      description: Returns a list of all books with optional filtering
+      operationId: getBooks
+      parameters:
+        - name: author_id
+          in: query
+          description: Filter books by author ID
+          required: false
+          schema:
+            type: string
+        - name: min_price
+          in: query
+          description: Filter books with price greater than or equal to this value
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: max_price
+          in: query
+          description: Filter books with price less than or equal to this value
+          required: false
+          schema:
+            type: number
+            format: float
+      responses:
+        '200':
+          description: List of books
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  books:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Book'
+                  count:
+                    type: integer
+    
+    post:
+      tags:
+        - books
+      summary: Create a new book
+      description: Adds a new book to the collection
+      operationId: createBook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '201':
+          description: Book created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /books/{bookId}:
+    get:
+      tags:
+        - books
+      summary: Get a specific book by ID
+      description: Returns details of a single book
+      operationId: getBook
+      parameters:
+        - name: bookId
+          in: path
+          description: The ID of the book to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Book details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      tags:
+        - books
+      summary: Update an existing book
+      description: Updates all fields of a book (full replacement)
+      operationId: updateBook
+      parameters:
+        - name: bookId
+          in: path
+          description: The ID of the book to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '200':
+          description: Book updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    patch:
+      tags:
+        - books
+      summary: Partially update a book
+      description: Updates specific fields of a book (partial update)
+      operationId: partialUpdateBook
+      parameters:
+        - name: bookId
+          in: path
+          description: The ID of the book to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookPartialInput'
+      responses:
+        '200':
+          description: Book updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      tags:
+        - books
+      summary: Delete a book
+      description: Removes a book from the collection
+      operationId: deleteBook
+      parameters:
+        - name: bookId
+          in: path
+          description: The ID of the book to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Book deleted successfully
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /authors:
+    get:
+      tags:
+        - authors
+      summary: Get all authors
+      description: Returns a list of all authors
+      operationId: getAuthors
+      responses:
+        '200':
+          description: List of authors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Author'
+                  count:
+                    type: integer
+    
+    post:
+      tags:
+        - authors
+      summary: Create a new author
+      description: Adds a new author to the collection
+      operationId: createAuthor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorInput'
+      responses:
+        '201':
+          description: Author created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /authors/{authorId}:
+    get:
+      tags:
+        - authors
+      summary: Get a specific author by ID
+      description: Returns details of a single author
+      operationId: getAuthor
+      parameters:
+        - name: authorId
+          in: path
+          description: The ID of the author to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Author details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '404':
+          description: Author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      tags:
+        - authors
+      summary: Update an existing author
+      description: Updates all fields of an author
+      operationId: updateAuthor
+      parameters:
+        - name: authorId
+          in: path
+          description: The ID of the author to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorInput'
+      responses:
+        '200':
+          description: Author updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '404':
+          description: Author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      tags:
+        - authors
+      summary: Delete an author
+      description: Removes an author from the collection
+      operationId: deleteAuthor
+      parameters:
+        - name: authorId
+          in: path
+          description: The ID of the author to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Author deleted successfully
+        '404':
+          description: Author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /authors/{authorId}/books:
+    get:
+      tags:
+        - authors
+      summary: Get all books by a specific author
+      description: Returns a list of books written by the specified author
+      operationId: getAuthorBooks
+      parameters:
+        - name: authorId
+          in: path
+          description: The ID of the author
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of books by the author
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  author:
+                    $ref: '#/components/schemas/Author'
+                  books:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Book'
+                  count:
+                    type: integer
+        '404':
+          description: Author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        title:
+          type: string
+          example: "The Great Gatsby"
+        author_id:
+          type: string
+          example: "1"
+        isbn:
+          type: string
+          example: "978-0-7432-7356-5"
+        published_year:
+          type: integer
+          example: 1925
+        price:
+          type: number
+          format: float
+          example: 12.99
+        stock:
+          type: integer
+          example: 42
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+    
+    BookInput:
+      type: object
+      required:
+        - title
+        - author_id
+        - isbn
+        - published_year
+        - price
+      properties:
+        title:
+          type: string
+          example: "The Catcher in the Rye"
+        author_id:
+          type: string
+          example: "1"
+        isbn:
+          type: string
+          example: "978-0-316-76948-0"
+        published_year:
+          type: integer
+          example: 1951
+        price:
+          type: number
+          format: float
+          example: 11.99
+        stock:
+          type: integer
+          example: 50
+          default: 0
+    
+    BookPartialInput:
+      type: object
+      properties:
+        title:
+          type: string
+        author_id:
+          type: string
+        isbn:
+          type: string
+        published_year:
+          type: integer
+        price:
+          type: number
+          format: float
+        stock:
+          type: integer
+    
+    Author:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        name:
+          type: string
+          example: "F. Scott Fitzgerald"
+        birth_year:
+          type: integer
+          example: 1896
+        nationality:
+          type: string
+          example: "American"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+    
+    AuthorInput:
+      type: object
+      required:
+        - name
+        - birth_year
+        - nationality
+      properties:
+        name:
+          type: string
+          example: "Ernest Hemingway"
+        birth_year:
+          type: integer
+          example: 1899
+        nationality:
+          type: string
+          example: "American"
+    
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Resource not found"
