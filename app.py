@@ -102,21 +102,24 @@ authors = {
         "name": "F. Scott Fitzgerald",
         "birth_year": 1896,
         "nationality": "American",
-        "created_at": "2024-01-01T00:00:00Z"
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z"
     },
     "2": {
         "id": "2",
         "name": "Harper Lee",
         "birth_year": 1926,
         "nationality": "American",
-        "created_at": "2024-01-01T00:00:00Z"
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z"
     },
     "3": {
         "id": "3",
         "name": "George Orwell",
         "birth_year": 1903,
         "nationality": "British",
-        "created_at": "2024-01-01T00:00:00Z"
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z"
     }
 }
 
@@ -640,6 +643,8 @@ def get_authors():
                     type: string
                   created_at:
                     type: string
+                  updated_at:
+                    type: string
             count:
               type: integer
     """
@@ -737,6 +742,8 @@ def create_author():
               type: string
             created_at:
               type: string
+            updated_at:
+              type: string
       400:
         description: Invalid input
         schema:
@@ -756,12 +763,15 @@ def create_author():
     # Generate new ID
     author_id = str(uuid.uuid4())
     
+    timestamp = datetime.utcnow().isoformat() + "Z"
+    
     new_author = {
         "id": author_id,
         "name": data['name'],
         "birth_year": data['birth_year'],
         "nationality": data['nationality'],
-        "created_at": datetime.utcnow().isoformat() + "Z"
+        "created_at": timestamp,
+        "updated_at": timestamp
     }
     
     authors[author_id] = new_author
@@ -814,6 +824,8 @@ def update_author(author_id):
               type: string
             created_at:
               type: string
+            updated_at:
+              type: string
       404:
         description: Author not found
         schema:
@@ -848,7 +860,8 @@ def update_author(author_id):
         "name": data['name'],
         "birth_year": data['birth_year'],
         "nationality": data['nationality'],
-        "created_at": created_at
+        "created_at": created_at,
+        "updated_at": datetime.utcnow().isoformat() + "Z"
     }
     
     authors[author_id] = updated_author
